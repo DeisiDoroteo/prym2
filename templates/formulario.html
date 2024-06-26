@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predicción de Precio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        #resultado {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        function predecirPrecio(event) {
+            event.preventDefault();
+            const num_reviews = document.getElementById('num_reviews').value;
+            const prod_desc = document.getElementById('prod_desc').value;
+            const theme_name = document.getElementById('theme_name').value;
+            const play_star_rating = document.getElementById('play_star_rating').value;
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `num_reviews=${num_reviews}&prod_desc=${prod_desc}&theme_name=${theme_name}&play_star_rating=${play_star_rating}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('resultado').innerText = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('resultado').innerText = 'Precio predicho: ' + data.precio_predicho.toFixed(2);
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultado').innerText = 'Error en la solicitud.';
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Predicción de Precio</h1>
+    <form id="formulario" onsubmit="predecirPrecio(event)">
+        <label for="num_reviews">Número de Reseñas:</label>
+        <input type="text" id="num_reviews" name="num_reviews" required><br><br>
+        <label for="prod_desc">Numero DesProducto:</label>
+        <input type="text" id="prod_desc" name="prod_desc" required><br><br>
+        <label for="theme_name">Numero del Tema:</label>
+        <input type="text" id="theme_name" name="theme_name" required><br><br>
+        <label for="play_star_rating">Calificación de Estrellas:</label>
+        <input type="text" id="play_star_rating" name="play_star_rating" required><br><br>
+        <input type="submit" value="Predecir Precio">
+    </form>
+    <p id="resultado"></p>
+</body>
+</html>
